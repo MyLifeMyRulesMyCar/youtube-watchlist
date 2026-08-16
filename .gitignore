@@ -1,0 +1,11 @@
+.venv/
+__pycache__/
+*.pyc
+
+# Personal / state data (never commit)
+cookies.txt
+seen.json
+channel_ids.json
+reports/*
+!reports/*.md
+player.html

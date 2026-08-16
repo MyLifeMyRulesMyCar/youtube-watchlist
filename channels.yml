@@ -1,0 +1,18 @@
+# YouTube channels to watch.
+# For each channel, add a name and its URL.
+#
+# Supported URL formats:
+#   https://www.youtube.com/@handle
+#   https://www.youtube.com/channel/UCxxxx
+#   https://www.youtube.com/c/name
+#   https://www.youtube.com/user/name
+
+channels:
+  - name: Fireship
+    url: https://www.youtube.com/@Fireship
+
+  - name: MReflow
+    url: https://www.youtube.com/@mreflow/
+
+  - name: Maththew Berman
+    url: https://www.youtube.com/@matthew_berman
