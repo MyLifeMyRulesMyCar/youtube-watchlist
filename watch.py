@@ -16,7 +16,6 @@ import player
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 CONFIG_FILE = os.path.join(BASE_DIR, "channels.yml")
 CHANNEL_IDS_FILE = os.path.join(BASE_DIR, "channel_ids.json")
-SEEN_FILE = os.path.join(BASE_DIR, "seen.json")
 REPORTS_DIR = os.path.join(BASE_DIR, "reports")
 
 HEADERS = {
@@ -30,6 +29,7 @@ ATOM_NS = "http://www.w3.org/2005/Atom"
 YT_NS = "http://www.youtube.com/xml/schemas/2015"
 
 CHANNEL_ID_RE = re.compile(r"UC[0-9A-Za-z_-]{22}")
+VIDEO_ID_RE = re.compile(r"watch\?v=([0-9A-Za-z_-]{11})")
 
 CHANNEL_ID_PATTERNS = [
     re.compile(r'<link rel="canonical" href="[^"]*channel/(UC[0-9A-Za-z_-]{22})'),
@@ -58,6 +58,16 @@ def load_config():
     with open(CONFIG_FILE, encoding="utf-8") as f:
         config = yaml.safe_load(f)
     return config.get("channels", [])
+
+
+def load_known_video_ids():
+    known = set()
+    if os.path.isdir(REPORTS_DIR):
+        for fname in os.listdir(REPORTS_DIR):
+            if fname.endswith(".md"):
+                with open(os.path.join(REPORTS_DIR, fname), encoding="utf-8") as f:
+                    known.update(VIDEO_ID_RE.findall(f.read()))
+    return known
 
 
 def extract_direct_channel_id(url):
@@ -169,14 +179,9 @@ def main():
         help="Only report videos published within the last N days (default 7)",
     )
     parser.add_argument(
-        "--reset",
-        action="store_true",
-        help="Clear tracking history and re-detect the current window as new",
-    )
-    parser.add_argument(
         "--git-sync",
         action="store_true",
-        help="Commit and push the weekly report to git after the run",
+        help="Commit and push the report to git after the run",
     )
     args = parser.parse_args()
 
@@ -185,13 +190,7 @@ def main():
         print("No channels found in channels.yml")
         sys.exit(1)
 
-    if args.reset:
-        seen = {}
-        is_baseline = False
-    else:
-        seen = load_json(SEEN_FILE)
-        is_baseline = not seen
-
+    known = load_known_video_ids()
     cutoff = (datetime.now() - timedelta(days=args.days)).strftime("%Y-%m-%d")
 
     all_new = {}
@@ -214,33 +213,15 @@ def main():
             print(f"WARNING: failed to fetch videos for '{name}': {e}")
             continue
 
-        current_ids = [v["id"] for v in videos]
-        known = set(seen.get(url, []))
-
         in_window = [v for v in videos if v["published"] and v["published"] >= cutoff]
-
-        if is_baseline:
-            new_vids = []
-        else:
-            new_vids = [v for v in in_window if v["id"] not in known]
-
-        seen[url] = current_ids
+        new_vids = [v for v in in_window if v["id"] not in known]
 
         if new_vids:
             all_new[name] = new_vids
             total_new += len(new_vids)
             print(f"{name}: {len(new_vids)} new video(s)")
 
-    save_json(SEEN_FILE, seen)
-
     report_date = datetime.now().strftime("%Y-%m-%d")
-
-    if is_baseline:
-        print(
-            "Baseline established - recorded current videos. "
-            "No new videos reported this first run."
-        )
-        return
 
     if not all_new:
         print("No new videos this week.")
