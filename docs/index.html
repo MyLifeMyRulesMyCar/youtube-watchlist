@@ -1,37 +1,4 @@
-import argparse
-import http.server
-import json
-import os
-import socket
-import sys
-import threading
-import webbrowser
-
-BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-REPORTS_DIR = os.path.join(BASE_DIR, "reports")
-PLAYER_HTML = os.path.join(BASE_DIR, "player.html")
-PAGES_ORIGIN = "https://mylifemyrulesmycar.github.io"
-PAGES_HTML = os.path.join(BASE_DIR, "docs", "index.html")
-
-
-def find_latest_report():
-    if not os.path.isdir(REPORTS_DIR):
-        return None
-    files = [
-        f
-        for f in os.listdir(REPORTS_DIR)
-        if f.startswith("new_videos_") and f.endswith(".json")
-    ]
-    if not files:
-        return None
-    files.sort(reverse=True)
-    return os.path.join(REPORTS_DIR, files[0])
-
-
-def build_html(videos, origin):
-    vids_json = json.dumps(videos)
-    origin_json = json.dumps(origin)
-    return """<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="utf-8">
@@ -75,8 +42,8 @@ def build_html(videos, origin):
 </div>
 
 <script>
-var VIDEOS = __VIDEOS__;
-var ORIGIN = __ORIGIN__;
+var VIDEOS = [{"channel": "Fireship", "title": "This new startup can query anywhere you've been...", "url": "https://www.youtube.com/watch?v=E7la7-dtfVM", "published": "2026-08-14"}, {"channel": "Fireship", "title": "Meta's new model wants \"deep access\" to your personal life...", "url": "https://www.youtube.com/watch?v=G55HSGpuh1M", "published": "2026-08-12"}, {"channel": "Fireship", "title": "I spent 3 days at MIT... the robot hype is worse than you think", "url": "https://www.youtube.com/watch?v=aB5LGrHISqY", "published": "2026-08-11"}, {"channel": "MReflow", "title": "Hank Green did nothing wrong", "url": "https://www.youtube.com/watch?v=ZePfpQ7lbcs", "published": "2026-08-15"}, {"channel": "MReflow", "title": "3 New Ways To Use ChatGPT Codex", "url": "https://www.youtube.com/watch?v=aszRSGI_Iwg", "published": "2026-08-15"}, {"channel": "MReflow", "title": "AI News: A Flood of New Models (Here's What Matters)", "url": "https://www.youtube.com/watch?v=NC4h5kWH_-A", "published": "2026-08-14"}, {"channel": "MReflow", "title": "Did This AI Company Go Too Far...?", "url": "https://www.youtube.com/watch?v=MVOWGGrVTOs", "published": "2026-08-14"}, {"channel": "MReflow", "title": "Anyone Can Make Amazing Games Now (Easy)", "url": "https://www.youtube.com/watch?v=qK4nV_LnXxQ", "published": "2026-08-13"}, {"channel": "Maththew Berman", "title": "AI News: ChatGPT Ultrafast, Grok 4.6, 3 New Open-Source Models, and more!", "url": "https://www.youtube.com/watch?v=9qix4oDB5aw", "published": "2026-08-14"}, {"channel": "Maththew Berman", "title": "xAI actually did it... (Grok 4.6)", "url": "https://www.youtube.com/watch?v=rdYBjpylJUQ", "published": "2026-08-13"}, {"channel": "Maththew Berman", "title": "Cursor just made something incredible...", "url": "https://www.youtube.com/watch?v=mZM-J7XK5Aw", "published": "2026-08-12"}, {"channel": "Maththew Berman", "title": "Faster AND Cheaper AI", "url": "https://www.youtube.com/watch?v=i_t-99u6pqw", "published": "2026-08-11"}, {"channel": "Maththew Berman", "title": "Mark Zuckerberg just called out Dario (and Anthropic)", "url": "https://www.youtube.com/watch?v=hZqJvWDI0Rs", "published": "2026-08-11"}, {"channel": "Maththew Berman", "title": "AI went rogue in real life...", "url": "https://www.youtube.com/watch?v=mixeobHQ7ao", "published": "2026-08-10"}];
+var ORIGIN = "https://mylifemyrulesmycar.github.io";
 var index = 0;
 var player = null;
 
@@ -153,94 +120,3 @@ document.addEventListener("keydown", function (e) {
 <script src="https://www.youtube.com/iframe_api"></script>
 </body>
 </html>
-""".replace("__VIDEOS__", vids_json).replace("__ORIGIN__", origin_json)
-
-
-class PlayerHandler(http.server.SimpleHTTPRequestHandler):
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, directory=BASE_DIR, **kwargs)
-
-    def do_GET(self):
-        if self.path.startswith("/quit"):
-            self.send_response(200)
-            self.send_header("Content-Type", "text/plain")
-            self.send_header("Cache-Control", "no-store")
-            self.end_headers()
-            self.wfile.write(b"bye")
-            threading.Thread(target=self.server.shutdown, daemon=True).start()
-            return
-        super().do_GET()
-
-    def log_message(self, *args):
-        pass
-
-
-def free_port():
-    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
-        s.bind(("127.0.0.1", 0))
-        return s.getsockname()[1]
-
-
-def play_browser(videos):
-    port = free_port()
-    origin = f"http://127.0.0.1:{port}"
-
-    with open(PLAYER_HTML, "w", encoding="utf-8") as f:
-        f.write(build_html(videos, origin))
-
-    httpd = http.server.ThreadingHTTPServer(("127.0.0.1", port), PlayerHandler)
-
-    url = f"{origin}/player.html"
-    print(f"Opening {len(videos)} new video(s) in your browser...")
-    print(f"URL: {url}")
-    print("Controls: Space=pause  N=next  P=prev  Q=close")
-    threading.Thread(target=lambda: webbrowser.open(url), daemon=True).start()
-
-    try:
-        httpd.serve_forever()
-    except KeyboardInterrupt:
-        pass
-    finally:
-        httpd.server_close()
-
-
-def generate_pages(videos):
-    os.makedirs(os.path.dirname(PAGES_HTML), exist_ok=True)
-    with open(PAGES_HTML, "w", encoding="utf-8") as f:
-        f.write(build_html(videos, PAGES_ORIGIN))
-    return PAGES_HTML
-
-
-def main():
-    parser = argparse.ArgumentParser(description="Play new YouTube videos in the browser.")
-    parser.add_argument("--file", help="Path to a new_videos_*.json file")
-    parser.add_argument(
-        "--pages",
-        action="store_true",
-        help="Generate docs/index.html for GitHub Pages instead of playing locally",
-    )
-    args = parser.parse_args()
-
-    path = args.file or find_latest_report()
-    if not path or not os.path.exists(path):
-        print("No new-videos report found.")
-        sys.exit(1)
-
-    with open(path, encoding="utf-8") as f:
-        data = json.load(f)
-
-    videos = data.get("videos", [])
-    if not videos:
-        print("No videos to play.")
-        return
-
-    if args.pages:
-        out = generate_pages(videos)
-        print(f"Generated {out}")
-        return
-
-    play_browser(videos)
-
-
-if __name__ == "__main__":
-    main()

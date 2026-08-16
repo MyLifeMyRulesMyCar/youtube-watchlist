@@ -13,7 +13,7 @@ def run():
 
     git = ["git", "-C", BASE_DIR]
 
-    subprocess.run(git + ["add", "reports"], check=False)
+    subprocess.run(git + ["add", "reports", "docs"], check=False)
 
     staged = subprocess.run(git + ["diff", "--cached", "--quiet"])
     if staged.returncode == 0:

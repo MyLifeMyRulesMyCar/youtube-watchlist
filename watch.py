@@ -11,6 +11,7 @@ import requests
 import yaml
 
 import git_sync
+import player
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 CONFIG_FILE = os.path.join(BASE_DIR, "channels.yml")
@@ -155,7 +156,7 @@ def write_report(new_videos, report_date):
     ]
     save_json(json_path, {"date": report_date, "videos": flat})
 
-    return md_path, json_path
+    return md_path, json_path, flat
 
 
 def main():
@@ -245,8 +246,10 @@ def main():
         print("No new videos this week.")
         return
 
-    md_path, json_path = write_report(all_new, report_date)
+    md_path, json_path, flat = write_report(all_new, report_date)
     print(f"Report written to {md_path}")
+
+    player.generate_pages(flat)
 
     if not args.no_play:
         player_path = os.path.join(BASE_DIR, "player.py")
