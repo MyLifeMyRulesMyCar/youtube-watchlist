@@ -29,7 +29,16 @@ def find_latest_report():
 
 
 def build_html(videos, origin):
-    vids_json = json.dumps(videos)
+    playlists = {}
+    order = []
+    for v in videos:
+        name = v.get("playlist") or "General"
+        if name not in playlists:
+            playlists[name] = []
+            order.append(name)
+        playlists[name].append(v)
+    playlists_json = json.dumps(playlists)
+    order_json = json.dumps(order)
     origin_json = json.dumps(origin)
     return """<!DOCTYPE html>
 <html lang="en">
@@ -46,6 +55,11 @@ def build_html(videos, origin):
   .controls { margin: 10px 0; }
   .controls button { padding: 8px 16px; margin-right: 8px; cursor: pointer; }
   .hint { color: #888; font-size: 12px; margin-top: 8px; }
+  .tabs { margin-bottom: 14px; }
+  .tabs button { padding: 8px 16px; margin-right: 8px; cursor: pointer;
+                 background: #1a1a1a; color: #eee; border: 1px solid #333;
+                 border-radius: 4px; font-size: 14px; }
+  .tabs button.active { background: #c00; border-color: #c00; }
   .sidebar { width: 320px; max-height: 80vh; overflow-y: auto; }
   .sidebar h3 { margin-top: 0; }
   .sidebar ul { list-style: none; padding: 0; margin: 0; }
@@ -58,6 +72,7 @@ def build_html(videos, origin):
 <body>
 <div class="wrap">
   <div class="main">
+    <div class="tabs" id="tabs"></div>
     <div id="player"></div>
     <div id="info"></div>
     <div class="controls">
@@ -69,32 +84,58 @@ def build_html(videos, origin):
     <div class="hint">Keyboard: Space = play/pause &nbsp;|&nbsp; N = next &nbsp;|&nbsp; P = previous &nbsp;|&nbsp; Q = close</div>
   </div>
   <div class="sidebar">
-    <h3>Playlist</h3>
+    <h3>Videos</h3>
     <ul id="list"></ul>
   </div>
 </div>
 
 <script>
-var VIDEOS = __VIDEOS__;
+var PLAYLISTS = __PLAYLISTS__;
+var ORDER = __ORDER__;
 var ORIGIN = __ORIGIN__;
+var current = ORDER.length ? ORDER[0] : null;
 var index = 0;
 var player = null;
 
+function playlist() { return PLAYLISTS[current] || []; }
+
 function onYouTubeIframeAPIReady() {
+  var first = playlist();
   player = new YT.Player("player", {
     height: "480",
     width: "854",
-    videoId: VIDEOS.length ? VIDEOS[0].url.split("v=")[1] : null,
+    videoId: first.length ? first[0].url.split("v=")[1] : null,
     playerVars: { autoplay: 1, rel: 0, origin: ORIGIN },
     events: { onStateChange: onStateChange }
   });
+  buildTabs();
   buildList();
   update();
 }
 
+function buildTabs() {
+  var tabs = document.getElementById("tabs");
+  tabs.innerHTML = "";
+  ORDER.forEach(function (name) {
+    var b = document.createElement("button");
+    b.textContent = name + " (" + PLAYLISTS[name].length + ")";
+    b.onclick = function () { switchPlaylist(name); };
+    tabs.appendChild(b);
+  });
+}
+
+function switchPlaylist(name) {
+  if (name === current) return;
+  current = name;
+  index = 0;
+  buildList();
+  play(0);
+}
+
 function buildList() {
   var list = document.getElementById("list");
-  VIDEOS.forEach(function (v, i) {
+  list.innerHTML = "";
+  playlist().forEach(function (v, i) {
     var li = document.createElement("li");
     li.setAttribute("data-i", i);
     var ch = document.createElement("span");
@@ -108,18 +149,26 @@ function buildList() {
 }
 
 function update() {
-  var v = VIDEOS[index];
+  var vids = playlist();
+  if (!vids.length) return;
+  var v = vids[index];
   document.getElementById("info").innerHTML =
     '<span class="channel">' + v.channel + '</span>' + v.title;
   var items = document.querySelectorAll("#list li");
   items.forEach(function (li, i) {
     li.className = i === index ? "active" : "";
   });
+  var buttons = document.querySelectorAll("#tabs button");
+  ORDER.forEach(function (n, i) {
+    buttons[i].className = n === current ? "active" : "";
+  });
 }
 
 function play(i) {
-  index = (i + VIDEOS.length) % VIDEOS.length;
-  var id = VIDEOS[index].url.split("v=")[1];
+  var vids = playlist();
+  if (!vids.length) return;
+  index = (i + vids.length) % vids.length;
+  var id = vids[index].url.split("v=")[1];
   player.loadVideoById(id);
   update();
 }
@@ -153,7 +202,7 @@ document.addEventListener("keydown", function (e) {
 <script src="https://www.youtube.com/iframe_api"></script>
 </body>
 </html>
-""".replace("__VIDEOS__", vids_json).replace("__ORIGIN__", origin_json)
+""".replace("__PLAYLISTS__", playlists_json).replace("__ORDER__", order_json).replace("__ORIGIN__", origin_json)
 
 
 class PlayerHandler(http.server.SimpleHTTPRequestHandler):

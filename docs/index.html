@@ -13,6 +13,11 @@
   .controls { margin: 10px 0; }
   .controls button { padding: 8px 16px; margin-right: 8px; cursor: pointer; }
   .hint { color: #888; font-size: 12px; margin-top: 8px; }
+  .tabs { margin-bottom: 14px; }
+  .tabs button { padding: 8px 16px; margin-right: 8px; cursor: pointer;
+                 background: #1a1a1a; color: #eee; border: 1px solid #333;
+                 border-radius: 4px; font-size: 14px; }
+  .tabs button.active { background: #c00; border-color: #c00; }
   .sidebar { width: 320px; max-height: 80vh; overflow-y: auto; }
   .sidebar h3 { margin-top: 0; }
   .sidebar ul { list-style: none; padding: 0; margin: 0; }
@@ -25,6 +30,7 @@
 <body>
 <div class="wrap">
   <div class="main">
+    <div class="tabs" id="tabs"></div>
     <div id="player"></div>
     <div id="info"></div>
     <div class="controls">
@@ -36,32 +42,58 @@
     <div class="hint">Keyboard: Space = play/pause &nbsp;|&nbsp; N = next &nbsp;|&nbsp; P = previous &nbsp;|&nbsp; Q = close</div>
   </div>
   <div class="sidebar">
-    <h3>Playlist</h3>
+    <h3>Videos</h3>
     <ul id="list"></ul>
   </div>
 </div>
 
 <script>
-var VIDEOS = [{"channel": "Fireship", "title": "This new startup can query anywhere you've been...", "url": "https://www.youtube.com/watch?v=E7la7-dtfVM", "published": "2026-08-14"}, {"channel": "Fireship", "title": "Meta's new model wants \"deep access\" to your personal life...", "url": "https://www.youtube.com/watch?v=G55HSGpuh1M", "published": "2026-08-12"}, {"channel": "Fireship", "title": "I spent 3 days at MIT... the robot hype is worse than you think", "url": "https://www.youtube.com/watch?v=aB5LGrHISqY", "published": "2026-08-11"}, {"channel": "MReflow", "title": "Hank Green did nothing wrong", "url": "https://www.youtube.com/watch?v=ZePfpQ7lbcs", "published": "2026-08-15"}, {"channel": "MReflow", "title": "3 New Ways To Use ChatGPT Codex", "url": "https://www.youtube.com/watch?v=aszRSGI_Iwg", "published": "2026-08-15"}, {"channel": "MReflow", "title": "AI News: A Flood of New Models (Here's What Matters)", "url": "https://www.youtube.com/watch?v=NC4h5kWH_-A", "published": "2026-08-14"}, {"channel": "MReflow", "title": "Did This AI Company Go Too Far...?", "url": "https://www.youtube.com/watch?v=MVOWGGrVTOs", "published": "2026-08-14"}, {"channel": "MReflow", "title": "Anyone Can Make Amazing Games Now (Easy)", "url": "https://www.youtube.com/watch?v=qK4nV_LnXxQ", "published": "2026-08-13"}, {"channel": "Maththew Berman", "title": "AI News: ChatGPT Ultrafast, Grok 4.6, 3 New Open-Source Models, and more!", "url": "https://www.youtube.com/watch?v=9qix4oDB5aw", "published": "2026-08-14"}, {"channel": "Maththew Berman", "title": "xAI actually did it... (Grok 4.6)", "url": "https://www.youtube.com/watch?v=rdYBjpylJUQ", "published": "2026-08-13"}, {"channel": "Maththew Berman", "title": "Cursor just made something incredible...", "url": "https://www.youtube.com/watch?v=mZM-J7XK5Aw", "published": "2026-08-12"}, {"channel": "Maththew Berman", "title": "Faster AND Cheaper AI", "url": "https://www.youtube.com/watch?v=i_t-99u6pqw", "published": "2026-08-11"}, {"channel": "Maththew Berman", "title": "Mark Zuckerberg just called out Dario (and Anthropic)", "url": "https://www.youtube.com/watch?v=hZqJvWDI0Rs", "published": "2026-08-11"}, {"channel": "Maththew Berman", "title": "AI went rogue in real life...", "url": "https://www.youtube.com/watch?v=mixeobHQ7ao", "published": "2026-08-10"}];
+var PLAYLISTS = {"AI": [{"playlist": "AI", "channel": "Fireship", "title": "DeepSeek is back... and Silicon Valley is terrified", "url": "https://www.youtube.com/watch?v=xBByvFrqmWU", "published": "2026-08-20"}, {"playlist": "AI", "channel": "Fireship", "title": "The summer Math fell to the machines...", "url": "https://www.youtube.com/watch?v=iuZPTE5qsJY", "published": "2026-08-19"}, {"playlist": "AI", "channel": "MReflow", "title": "This AI Found Money I Was Wasting", "url": "https://www.youtube.com/watch?v=f74JmwXm-sQ", "published": "2026-08-25"}, {"playlist": "AI", "channel": "MReflow", "title": "This AI Creates Insane 3D Worlds", "url": "https://www.youtube.com/watch?v=ZY628bslSYY", "published": "2026-08-24"}, {"playlist": "AI", "channel": "MReflow", "title": "The Wildest Smartphone I\u2019ve Ever Seen \ud83e\udd2f", "url": "https://www.youtube.com/watch?v=aOzaO5AAGjk", "published": "2026-08-22"}, {"playlist": "AI", "channel": "MReflow", "title": "This Pyramid Could Be Your Next Intern", "url": "https://www.youtube.com/watch?v=1m5Ee9QbLF0", "published": "2026-08-21"}, {"playlist": "AI", "channel": "MReflow", "title": "AI News: OpenAI Pauses, AI Cancer Vaccine, and Qwen3.8", "url": "https://www.youtube.com/watch?v=EfGF7QbJItA", "published": "2026-08-21"}, {"playlist": "AI", "channel": "MReflow", "title": "Claude\u2019s Text Watermark Could Follow It Everywhere", "url": "https://www.youtube.com/watch?v=O-8TbMFOAfg", "published": "2026-08-20"}, {"playlist": "AI", "channel": "MReflow", "title": "Your New Backup Brain Is Here", "url": "https://www.youtube.com/watch?v=r-ORCmsRHOE", "published": "2026-08-19"}, {"playlist": "AI", "channel": "Maththew Berman", "title": "Your Mac can get a job", "url": "https://www.youtube.com/watch?v=KpH-VLrcoQI", "published": "2026-08-25"}, {"playlist": "AI", "channel": "Maththew Berman", "title": "AI, AGI, and ASI", "url": "https://www.youtube.com/watch?v=81TlmeCIDWA", "published": "2026-08-25"}, {"playlist": "AI", "channel": "Maththew Berman", "title": "How to Understand the Next Wave of AI Before Everyone Else | Tibo Interview", "url": "https://www.youtube.com/watch?v=4qjEgPojjzM", "published": "2026-08-24"}, {"playlist": "AI", "channel": "Maththew Berman", "title": "Grok Bot saves so much time and is so easy", "url": "https://www.youtube.com/watch?v=RUAtrbLa9Q0", "published": "2026-08-24"}, {"playlist": "AI", "channel": "Maththew Berman", "title": "Grok Bot can shop for you! (I hope it doesn't though)", "url": "https://www.youtube.com/watch?v=EsgXT6TGY9A", "published": "2026-08-20"}, {"playlist": "AI", "channel": "Maththew Berman", "title": "11 Grok Bot Use Cases That Feel Like Cheating", "url": "https://www.youtube.com/watch?v=5CSXUsljJ_E", "published": "2026-08-20"}, {"playlist": "AI", "channel": "AI Stack Engineer", "title": "DeepSeek Harness: Open Source Alternative to Claude Code, Install, Configure, and Run Any Model", "url": "https://www.youtube.com/watch?v=YvT_aq6Y23s", "published": "2026-08-25"}, {"playlist": "AI", "channel": "AI Stack Engineer", "title": "Ox Alpha: Free & Unlimited on OpenCode: 1M Context, and a Mystery Lab Behind It", "url": "https://www.youtube.com/watch?v=vNYUcJqg-a4", "published": "2026-08-24"}, {"playlist": "AI", "channel": "AI Stack Engineer", "title": "Mythos 2 LEAKED! Anthropic's Hidden Model, GPT-6 Astra Frozen, Gemini 4, GLM-5.3 | AI NEWS", "url": "https://www.youtube.com/watch?v=jwCFl3-zOtY", "published": "2026-08-22"}, {"playlist": "AI", "channel": "AI Stack Engineer", "title": "Orca ADE: FREE Tool Running 5 Agents At Once, Claude Code + Codex + OpenCode", "url": "https://www.youtube.com/watch?v=i2hw-Rjnqpo", "published": "2026-08-21"}, {"playlist": "AI", "channel": "AI Stack Engineer", "title": "Ornith 1.5: The Open Coding Model Beats Gemma 4 on Agentic Coding", "url": "https://www.youtube.com/watch?v=03IjTgzK_EI", "published": "2026-08-20"}, {"playlist": "AI", "channel": "AI Stack Engineer", "title": "Puter.js: Full Backend For AI Agents, Auth, Storage, Database and 500+ LLMs", "url": "https://www.youtube.com/watch?v=MYFlhIbvOBc", "published": "2026-08-19"}], "Hardware": [{"playlist": "Hardware", "channel": "ExplainingComputers", "title": "RISC-V Week 2026: No x86 or Arm for Seven Days", "url": "https://www.youtube.com/watch?v=XWJICnlKUts", "published": "2026-08-23"}, {"playlist": "Hardware", "channel": "Leepsvideo", "title": "CeX vs GameStop: Used Console Prices in the UK vs USA", "url": "https://www.youtube.com/watch?v=MgHwzpneyYg", "published": "2026-08-24"}, {"playlist": "Hardware", "channel": "Leepsvideo", "title": "Pi News107. New Raspberry Pi products. Pi Zero2w Nintendo Wii U.", "url": "https://www.youtube.com/watch?v=Xj1Depv1E-0", "published": "2026-08-20"}, {"playlist": "Hardware", "channel": "Top Projects Compilation", "title": "10 Great Raspberry Pi & ESP32 Projects on Kickstarter!", "url": "https://www.youtube.com/watch?v=F7rLaviuHGY", "published": "2026-08-21"}, {"playlist": "Hardware", "channel": "Gamers Nexus", "title": "AMD's Reality Distortion Field", "url": "https://www.youtube.com/watch?v=vYosAN7UShU", "published": "2026-08-24"}, {"playlist": "Hardware", "channel": "Gamers Nexus", "title": "HW News - CXMT's Big DDR5 Gains, Comcast's Spy Routers, Micron & Hynix Screw Customers", "url": "https://www.youtube.com/watch?v=BGOhTu2w7Uk", "published": "2026-08-23"}]};
+var ORDER = ["AI", "Hardware"];
 var ORIGIN = "https://mylifemyrulesmycar.github.io";
+var current = ORDER.length ? ORDER[0] : null;
 var index = 0;
 var player = null;
 
+function playlist() { return PLAYLISTS[current] || []; }
+
 function onYouTubeIframeAPIReady() {
+  var first = playlist();
   player = new YT.Player("player", {
     height: "480",
     width: "854",
-    videoId: VIDEOS.length ? VIDEOS[0].url.split("v=")[1] : null,
+    videoId: first.length ? first[0].url.split("v=")[1] : null,
     playerVars: { autoplay: 1, rel: 0, origin: ORIGIN },
     events: { onStateChange: onStateChange }
   });
+  buildTabs();
   buildList();
   update();
 }
 
+function buildTabs() {
+  var tabs = document.getElementById("tabs");
+  tabs.innerHTML = "";
+  ORDER.forEach(function (name) {
+    var b = document.createElement("button");
+    b.textContent = name + " (" + PLAYLISTS[name].length + ")";
+    b.onclick = function () { switchPlaylist(name); };
+    tabs.appendChild(b);
+  });
+}
+
+function switchPlaylist(name) {
+  if (name === current) return;
+  current = name;
+  index = 0;
+  buildList();
+  play(0);
+}
+
 function buildList() {
   var list = document.getElementById("list");
-  VIDEOS.forEach(function (v, i) {
+  list.innerHTML = "";
+  playlist().forEach(function (v, i) {
     var li = document.createElement("li");
     li.setAttribute("data-i", i);
     var ch = document.createElement("span");
@@ -75,18 +107,26 @@ function buildList() {
 }
 
 function update() {
-  var v = VIDEOS[index];
+  var vids = playlist();
+  if (!vids.length) return;
+  var v = vids[index];
   document.getElementById("info").innerHTML =
     '<span class="channel">' + v.channel + '</span>' + v.title;
   var items = document.querySelectorAll("#list li");
   items.forEach(function (li, i) {
     li.className = i === index ? "active" : "";
   });
+  var buttons = document.querySelectorAll("#tabs button");
+  ORDER.forEach(function (n, i) {
+    buttons[i].className = n === current ? "active" : "";
+  });
 }
 
 function play(i) {
-  index = (i + VIDEOS.length) % VIDEOS.length;
-  var id = VIDEOS[index].url.split("v=")[1];
+  var vids = playlist();
+  if (!vids.length) return;
+  index = (i + vids.length) % vids.length;
+  var id = vids[index].url.split("v=")[1];
   player.loadVideoById(id);
   update();
 }

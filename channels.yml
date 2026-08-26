@@ -1,5 +1,5 @@
 # YouTube channels to watch.
-# For each channel, add a name and its URL.
+# For each channel, add a name, its URL, and a playlist (tab in the player).
 #
 # Supported URL formats:
 #   https://www.youtube.com/@handle
@@ -8,11 +8,44 @@
 #   https://www.youtube.com/user/name
 
 channels:
+  # ---------------- AI ----------------
   - name: Fireship
     url: https://www.youtube.com/@Fireship
+    playlist: AI
 
   - name: MReflow
     url: https://www.youtube.com/@mreflow/
+    playlist: AI
 
   - name: Maththew Berman
     url: https://www.youtube.com/@matthew_berman
+    playlist: AI
+
+  - name: AI Stack Engineer
+    url: https://www.youtube.com/@AIStackEngineer
+    playlist: AI
+
+  # ---------------- Hardware ----------------
+  - name: ExplainingComputers
+    url: https://www.youtube.com/@ExplainingComputers
+    playlist: Hardware
+
+  - name: Platima Tinkers
+    url: https://www.youtube.com/@PlatimaTinkers
+    playlist: Hardware
+
+  - name: Leepsvideo
+    url: https://www.youtube.com/@leepspvideo
+    playlist: Hardware
+
+  - name: Top Projects Compilation
+    url: https://www.youtube.com/@ToPProjectsCompilation
+    playlist: Hardware
+
+  - name: Jeff Geerling
+    url: https://www.youtube.com/@JeffGeerling
+    playlist: Hardware
+
+  - name: Gamers Nexus
+    url: https://www.youtube.com/@GamersNexus
+    playlist: Hardware

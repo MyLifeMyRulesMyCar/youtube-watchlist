@@ -31,9 +31,13 @@ https://mylifemyrulesmycar.github.io/youtube-watchlist/
    channels:
      - name: Fireship
        url: https://www.youtube.com/@Fireship
+       playlist: AI
    ```
 
    Supported URL formats: `@handle`, `/channel/UC...`, `/c/name`, `/user/name`.
+
+   Channels are grouped into tabs in the player by `playlist` (videos without
+   one fall back to a `General` tab).
 
 2. Enable GitHub Pages: repo **Settings → Pages → Source: Deploy from a branch
    → Branch: main, folder `/docs`**.
@@ -45,7 +49,9 @@ https://mylifemyrulesmycar.github.io/youtube-watchlist/
 
 When you add a new `@handle` channel, the workflow resolves its channel ID and
 commits it to `channel_ids.json`. If resolution fails from GitHub's IPs, use a
-`/channel/UC...` URL instead, or resolve it once locally and commit.
+`/channel/UC...` URL instead, or resolve it once locally and commit. Add a
+`playlist:` line to place the channel in a specific player tab (e.g. `AI` or
+`Hardware`).
 
 ## Running locally (optional)
 

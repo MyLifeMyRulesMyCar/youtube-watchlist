@@ -145,23 +145,27 @@ def write_report(new_videos, report_date):
     json_path = os.path.join(REPORTS_DIR, f"new_videos_{report_date}.json")
 
     lines = [f"# New Videos - {report_date}", ""]
-    for channel, vids in new_videos.items():
-        lines.append(f"## {channel}")
-        for v in vids:
-            lines.append(f"- [{v['title']}]({v['url']}) ({v['published']})")
-        lines.append("")
+    for playlist, channels in new_videos.items():
+        lines.append(f"## {playlist}")
+        for channel, vids in channels.items():
+            lines.append(f"### {channel}")
+            for v in vids:
+                lines.append(f"- [{v['title']}]({v['url']}) ({v['published']})")
+            lines.append("")
 
     with open(md_path, "w", encoding="utf-8") as f:
         f.write("\n".join(lines))
 
     flat = [
         {
+            "playlist": playlist,
             "channel": channel,
             "title": v["title"],
             "url": v["url"],
             "published": v["published"],
         }
-        for channel, vids in new_videos.items()
+        for playlist, channels in new_videos.items()
+        for channel, vids in channels.items()
         for v in vids
     ]
     save_json(json_path, {"date": report_date, "videos": flat})
@@ -199,6 +203,7 @@ def main():
     for ch in channels:
         name = ch.get("name") or ch.get("url")
         url = ch.get("url")
+        playlist = ch.get("playlist") or "General"
         if not url:
             print(f"WARNING: channel '{name}' has no url, skipping")
             continue
@@ -217,9 +222,9 @@ def main():
         new_vids = [v for v in in_window if v["id"] not in known]
 
         if new_vids:
-            all_new[name] = new_vids
+            all_new.setdefault(playlist, {})[name] = new_vids
             total_new += len(new_vids)
-            print(f"{name}: {len(new_vids)} new video(s)")
+            print(f"[{playlist}] {name}: {len(new_vids)} new video(s)")
 
     report_date = datetime.now().strftime("%Y-%m-%d")
 
