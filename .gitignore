@@ -5,6 +5,7 @@ __pycache__/
 # Personal / state data (never commit)
 cookies.txt
 seen.json
+channel_ids.json
 reports/*
 !reports/*.md
 player.html
