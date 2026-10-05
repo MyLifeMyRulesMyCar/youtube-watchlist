@@ -4,6 +4,7 @@ import os
 import re
 import subprocess
 import sys
+import time
 import xml.etree.ElementTree as ET
 from datetime import datetime, timedelta
 
@@ -109,9 +110,20 @@ def resolve_channel_id(url, name):
 
 def get_videos(channel_id):
     feed_url = f"https://www.youtube.com/feeds/videos.xml?channel_id={channel_id}"
-    resp = requests.get(feed_url, headers=HEADERS, timeout=30)
-    resp.raise_for_status()
-    root = ET.fromstring(resp.text)
+    headers = {**HEADERS, "Cookie": "CONSENT=YES+cb.20220301-00-p0.en+FX+xyz"}
+    root = None
+    last_err = None
+    for attempt in range(3):
+        try:
+            resp = requests.get(feed_url, headers=headers, timeout=30)
+            resp.raise_for_status()
+            root = ET.fromstring(resp.text)
+            break
+        except Exception as e:
+            last_err = e
+            time.sleep(2 * attempt)
+    if root is None:
+        raise last_err
 
     videos = []
     for entry in root.findall(f"{{{ATOM_NS}}}entry"):
@@ -199,6 +211,8 @@ def main():
 
     all_new = {}
     total_new = 0
+    fetched = 0
+    failed = 0
 
     for ch in channels:
         name = ch.get("name") or ch.get("url")
@@ -214,7 +228,9 @@ def main():
 
         try:
             videos = get_videos(channel_id)
+            fetched += 1
         except Exception as e:
+            failed += 1
             print(f"WARNING: failed to fetch videos for '{name}': {e}")
             continue
 
@@ -227,6 +243,13 @@ def main():
             print(f"[{playlist}] {name}: {len(new_vids)} new video(s)")
 
     report_date = datetime.now().strftime("%Y-%m-%d")
+
+    if fetched == 0:
+        print(
+            "ERROR: failed to fetch videos for all channels "
+            "(YouTube may be blocking GitHub Actions IPs)."
+        )
+        sys.exit(1)
 
     if not all_new:
         print("No new videos this week.")

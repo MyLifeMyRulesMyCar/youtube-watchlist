@@ -7,4 +7,5 @@ cookies.txt
 seen.json
 reports/*
 !reports/*.md
+!reports/*.json
 player.html
