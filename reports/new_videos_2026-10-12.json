@@ -1,0 +1,180 @@
+{
+  "date": "2026-10-12",
+  "videos": [
+    {
+      "playlist": "AI",
+      "channel": "Fireship",
+      "title": "A $6.3 billion open-weight model just got embarrassed by the French...",
+      "url": "https://www.youtube.com/watch?v=WrCjAAl9okA",
+      "published": "2026-10-07"
+    },
+    {
+      "playlist": "AI",
+      "channel": "Fireship",
+      "title": "PewDiePie is setting AI free... and OpenAI is furious",
+      "url": "https://www.youtube.com/watch?v=_5p1_TNSWqQ",
+      "published": "2026-10-05"
+    },
+    {
+      "playlist": "AI",
+      "channel": "MReflow",
+      "title": "AI News: Haiku-5.5, Visual ChatGPT, Grok's New Trick, and more!",
+      "url": "https://www.youtube.com/watch?v=NUizyuGj-kE",
+      "published": "2026-10-09"
+    },
+    {
+      "playlist": "AI",
+      "channel": "MReflow",
+      "title": "AI Design Hack Saves HOURS",
+      "url": "https://www.youtube.com/watch?v=grOilk8aCS0",
+      "published": "2026-10-08"
+    },
+    {
+      "playlist": "AI",
+      "channel": "Maththew Berman",
+      "title": "Everything has been solved",
+      "url": "https://www.youtube.com/watch?v=cX2kD2yQf88",
+      "published": "2026-10-10"
+    },
+    {
+      "playlist": "AI",
+      "channel": "Maththew Berman",
+      "title": "AI Is Recreating Photoshop and Other Adobe Apps",
+      "url": "https://www.youtube.com/watch?v=TqxHhuOve2Q",
+      "published": "2026-10-10"
+    },
+    {
+      "playlist": "AI",
+      "channel": "Maththew Berman",
+      "title": "Tesla Powerwall and Car Backup During an Outage",
+      "url": "https://www.youtube.com/watch?v=o_gf-LEaOWw",
+      "published": "2026-10-09"
+    },
+    {
+      "playlist": "AI",
+      "channel": "Maththew Berman",
+      "title": "Mistral Large 4 Failed My Rubik's Cube Test",
+      "url": "https://www.youtube.com/watch?v=QnxXx1FpnF8",
+      "published": "2026-10-08"
+    },
+    {
+      "playlist": "AI",
+      "channel": "Maththew Berman",
+      "title": "12 Grok Bot Use Cases That Feel Illegal",
+      "url": "https://www.youtube.com/watch?v=BsNHg6cNjZE",
+      "published": "2026-10-07"
+    },
+    {
+      "playlist": "AI",
+      "channel": "Maththew Berman",
+      "title": "How to Find Nano Banana 2.1 in Google AI Studio",
+      "url": "https://www.youtube.com/watch?v=EItxPNgKOX4",
+      "published": "2026-10-07"
+    },
+    {
+      "playlist": "AI",
+      "channel": "Maththew Berman",
+      "title": "Mistral is BACK! (Le Chonk)",
+      "url": "https://www.youtube.com/watch?v=Hu1JOK6aXsI",
+      "published": "2026-10-07"
+    },
+    {
+      "playlist": "AI",
+      "channel": "Maththew Berman",
+      "title": "Video Game Mashups: Minecraft and Mario in Elden Ring",
+      "url": "https://www.youtube.com/watch?v=yrn7FqgVOW8",
+      "published": "2026-10-06"
+    },
+    {
+      "playlist": "AI",
+      "channel": "AI Stack Engineer",
+      "title": "Gemini Agent: Google’s Answer to Dots and Muse, Built for Companies Work",
+      "url": "https://www.youtube.com/watch?v=esT15oQJaqg",
+      "published": "2026-10-10"
+    },
+    {
+      "playlist": "AI",
+      "channel": "AI Stack Engineer",
+      "title": "OpenHuman: Free Second Brain Runs on your Machine, 25x Less Memory",
+      "url": "https://www.youtube.com/watch?v=MQKmqP9sYUc",
+      "published": "2026-10-09"
+    },
+    {
+      "playlist": "AI",
+      "channel": "AI Stack Engineer",
+      "title": "EmbeddingGemma 2 + Gemma 4: A Fully Local Multimodal RAG Stack",
+      "url": "https://www.youtube.com/watch?v=UFNNYEFt4gs",
+      "published": "2026-10-08"
+    },
+    {
+      "playlist": "AI",
+      "channel": "AI Stack Engineer",
+      "title": "OpenAI Cut Codex Limits, Now It Promises 28 Days of Upgrades",
+      "url": "https://www.youtube.com/watch?v=Ao6c9SGPMKU",
+      "published": "2026-10-07"
+    },
+    {
+      "playlist": "AI",
+      "channel": "AI Stack Engineer",
+      "title": "Pi 2.0 Is Out: Native MCP, Codemode, and Model Routing Explained",
+      "url": "https://www.youtube.com/watch?v=b1T5DibaVek",
+      "published": "2026-10-06"
+    },
+    {
+      "playlist": "AI",
+      "channel": "AI Stack Engineer",
+      "title": "Manus 2.0: AI Agents With Their Own Email, Phone Number and Wallet",
+      "url": "https://www.youtube.com/watch?v=Z6g79U5phQQ",
+      "published": "2026-10-05"
+    },
+    {
+      "playlist": "Hardware",
+      "channel": "ExplainingComputers",
+      "title": "Encrypting Your Data",
+      "url": "https://www.youtube.com/watch?v=2FNhbXc2Yzk",
+      "published": "2026-10-11"
+    },
+    {
+      "playlist": "Hardware",
+      "channel": "Leepsvideo",
+      "title": "Linux anyone can use. Raspberry Pi OS Now 64bit X64",
+      "url": "https://www.youtube.com/watch?v=lgPHr1XYe54",
+      "published": "2026-10-08"
+    },
+    {
+      "playlist": "Hardware",
+      "channel": "Leepsvideo",
+      "title": "Raspberry Pi News 108. Upgrading RAM blocked!",
+      "url": "https://www.youtube.com/watch?v=TIsgfDtCAHU",
+      "published": "2026-10-05"
+    },
+    {
+      "playlist": "Hardware",
+      "channel": "Leepsvideo",
+      "title": "CEX Barnstaple Fire. 4th October 2026",
+      "url": "https://www.youtube.com/watch?v=zOP2-DARV_M",
+      "published": "2026-10-05"
+    },
+    {
+      "playlist": "Hardware",
+      "channel": "Jeff Geerling",
+      "title": "Qualcomm made a Pi 5 killer. Good luck getting one.",
+      "url": "https://www.youtube.com/watch?v=KUUuxkICOLw",
+      "published": "2026-10-09"
+    },
+    {
+      "playlist": "Hardware",
+      "channel": "Gamers Nexus",
+      "title": "DDR3 Rides Again, ft. Wendell of Level1 Techs",
+      "url": "https://www.youtube.com/watch?v=e4c2FSSaCsw",
+      "published": "2026-10-10"
+    },
+    {
+      "playlist": "Hardware",
+      "channel": "Gamers Nexus",
+      "title": "HW News - Discord ID Verification Fail, 5090s Too Valuable for RMA, Jensen is Just Like Us",
+      "url": "https://www.youtube.com/watch?v=ms0Z-qc8KzY",
+      "published": "2026-10-07"
+    }
+  ]
+}
