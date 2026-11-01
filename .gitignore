@@ -9,3 +9,4 @@ reports/*
 !reports/*.md
 !reports/*.json
 player.html
+weekly_scan.log

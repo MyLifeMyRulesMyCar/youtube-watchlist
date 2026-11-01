@@ -108,7 +108,21 @@ def resolve_channel_id(url, name):
     return None
 
 
-def get_videos(channel_id):
+API_URL = "https://www.googleapis.com/youtube/v3"
+
+
+def format_published(published):
+    if not published:
+        return ""
+    try:
+        return datetime.fromisoformat(published.replace("Z", "+00:00")).strftime(
+            "%Y-%m-%d"
+        )
+    except ValueError:
+        return published
+
+
+def get_videos_rss(channel_id):
     feed_url = f"https://www.youtube.com/feeds/videos.xml?channel_id={channel_id}"
     headers = {**HEADERS, "Cookie": "CONSENT=YES+cb.20220301-00-p0.en+FX+xyz"}
     root = None
@@ -132,23 +146,72 @@ def get_videos(channel_id):
         published = entry.findtext(f"{{{ATOM_NS}}}published")
         if not video_id or not title:
             continue
-        published_date = ""
-        if published:
-            try:
-                published_date = datetime.fromisoformat(
-                    published.replace("Z", "+00:00")
-                ).strftime("%Y-%m-%d")
-            except ValueError:
-                published_date = published
         videos.append(
             {
                 "id": video_id,
                 "title": title,
                 "url": f"https://www.youtube.com/watch?v={video_id}",
-                "published": published_date,
+                "published": format_published(published),
             }
         )
     return videos
+
+
+def get_videos_api(channel_id, api_key):
+    params = {"part": "contentDetails", "id": channel_id, "key": api_key}
+    resp = requests.get(f"{API_URL}/channels", params=params, headers=HEADERS, timeout=30)
+    resp.raise_for_status()
+    items = resp.json().get("items", [])
+    if not items:
+        raise RuntimeError(f"channel '{channel_id}' not found via YouTube Data API")
+
+    uploads_id = items[0]["contentDetails"]["relatedPlaylists"]["uploads"]
+
+    videos = []
+    page_token = None
+    for _ in range(4):
+        params = {
+            "part": "snippet",
+            "playlistId": uploads_id,
+            "maxResults": 50,
+            "key": api_key,
+        }
+        if page_token:
+            params["pageToken"] = page_token
+        resp = requests.get(
+            f"{API_URL}/playlistItems", params=params, headers=HEADERS, timeout=30
+        )
+        resp.raise_for_status()
+        data = resp.json()
+        for item in data.get("items", []):
+            snippet = item.get("snippet", {})
+            resource = snippet.get("resourceId", {})
+            video_id = resource.get("videoId")
+            title = snippet.get("title")
+            if not video_id or not title:
+                continue
+            videos.append(
+                {
+                    "id": video_id,
+                    "title": title,
+                    "url": f"https://www.youtube.com/watch?v={video_id}",
+                    "published": format_published(snippet.get("publishedAt", "")),
+                }
+            )
+        page_token = data.get("nextPageToken")
+        if not page_token:
+            break
+    return videos
+
+
+def get_videos(channel_id):
+    api_key = os.environ.get("YOUTUBE_API_KEY", "").strip()
+    if api_key:
+        try:
+            return get_videos_api(channel_id, api_key)
+        except Exception as e:
+            print(f"    API fetch failed, falling back to RSS: {e}")
+    return get_videos_rss(channel_id)
 
 
 def write_report(new_videos, report_date):
@@ -246,8 +309,9 @@ def main():
 
     if fetched == 0:
         print(
-            "ERROR: failed to fetch videos for all channels "
-            "(YouTube may be blocking GitHub Actions IPs)."
+            "ERROR: failed to fetch videos for all channels. Add a "
+            "YOUTUBE_API_KEY secret (YouTube Data API v3) to the workflow to "
+            "avoid YouTube blocking GitHub Actions IPs."
         )
         sys.exit(1)
 

@@ -3,15 +3,16 @@
 Scans a list of YouTube channels every week, detects videos published in the
 last 7 days, writes a report, and publishes a browser playlist via GitHub Pages.
 
-- **No API key, no cookies, no third-party services** — uses public YouTube RSS
-  feeds for the scan and the YouTube IFrame player for playback.
+- Uses public YouTube RSS feeds (no API key) — the scan runs on your own
+  machine, so it isn't blocked the way GitHub's server IPs are. Playback uses
+  the YouTube IFrame player.
 
 ## How it works
 
-A GitHub Actions workflow (`.github/workflows/weekly.yml`) runs every Sunday at
-09:00 (UTC+8):
+A Windows Scheduled Task (**"YouTube Watchlist Weekly Scan"**) runs
+`run_weekly.ps1` every Sunday at 08:30 PM. It:
 
-1. Fetches each channel's RSS feed.
+1. Fetches each channel's latest uploads from the public RSS feed.
 2. Detects videos published in the last 7 days that are not already in a
    committed report.
 3. Writes `reports/new_videos_<date>.md` and regenerates `docs/index.html`.
@@ -39,27 +40,40 @@ https://mylifemyrulesmycar.github.io/youtube-watchlist/
    Channels are grouped into tabs in the player by `playlist` (videos without
    one fall back to a `General` tab).
 
-2. Enable GitHub Pages: repo **Settings → Pages → Source: Deploy from a branch
+2. Enable auto-push (one-time, ~5 min). The task pushes over SSH using a
+   passphrase-less deploy key:
+
+   - On GitHub: repo **Settings → Deploy keys → Add deploy key**, paste the
+     public key from `~/.ssh/id_ed25519_deploy.pub`, give it a title, and check
+     **Allow write access**.
+   - Verify it works: `ssh -T git@github-deploy` (you should see `Hi <user>!`).
+
+3. Enable GitHub Pages: repo **Settings → Pages → Source: Deploy from a branch
    → Branch: main, folder `/docs`**.
 
-3. Push your changes — the workflow runs automatically every Sunday (or trigger
-   it manually from the **Actions** tab → **Weekly scan → Run workflow**).
+4. The scheduled task is registered already (every Sunday 08:30 PM, runs when
+   you are logged in). To re-create it after moving the repo, run:
+
+   ```powershell
+   Register-ScheduledTask -TaskName "YouTube Watchlist Weekly Scan" `
+     -Trigger (New-ScheduledTaskTrigger -Weekly -DaysOfWeek Sunday -At "08:30PM") `
+     -Action (New-ScheduledTaskAction -Execute "powershell.exe" `
+       -Argument "-NoProfile -ExecutionPolicy Bypass -File `"D:\watchlist\run_weekly.ps1`"")
+   ```
 
 ## Adding a new channel
 
-When you add a new `@handle` channel, the workflow resolves its channel ID and
-commits it to `channel_ids.json`. If resolution fails from GitHub's IPs, use a
-`/channel/UC...` URL instead, or resolve it once locally and commit. Add a
-`playlist:` line to place the channel in a specific player tab (e.g. `AI` or
-`Hardware`).
+When you add a new `@handle` channel, the scan resolves its channel ID and
+commits it to `channel_ids.json`. If resolution fails, use a `/channel/UC...`
+URL instead, or resolve it once locally and commit. Add a `playlist:` line to
+place the channel in a specific player tab (e.g. `AI` or `Hardware`).
 
-## Running locally (optional)
+## Running manually
 
 ```powershell
-.\.venv\Scripts\python.exe -m pip install -r requirements.txt
-.\.venv\Scripts\python.exe watch.py        # scan + play in browser
-.\.venv\Scripts\python.exe watch.py --no-play
-.\.venv\Scripts\python.exe player.py       # replay latest report
+.\.venv\Scripts\python.exe watch.py                    # scan + play in browser
+.\.venv\Scripts\python.exe watch.py --no-play --git-sync  # scan + push now
+powershell -File .\run_weekly.ps1                      # same as the scheduled task
 ```
 
 Player controls: `Space` = pause, `N` = next, `P` = previous, `Q` = close.

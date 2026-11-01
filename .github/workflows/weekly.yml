@@ -22,6 +22,8 @@ jobs:
         run: pip install -r requirements.txt
 
       - name: Scan for new videos
+        env:
+          YOUTUBE_API_KEY: ${{ secrets.YOUTUBE_API_KEY }}
         run: python watch.py --no-play
 
       - name: Commit and push changes
@@ -33,5 +35,5 @@ jobs:
             echo "No changes to commit"
           else
             git commit -m "Weekly scan $(date +%F)"
-            git push
+            git push origin "HEAD:${{ github.ref_name }}"
           fi
